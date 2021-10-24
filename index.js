@@ -63,8 +63,11 @@ app.get('/', (req, res) => {
 
 // endpoint to add crypto currency
 app.post('/addCrypto', jsonParser, (req, res) => {
-  cryptos.push(req.body.name)
-  res.send({"status": "success"})
+  if (req.body.name) {
+    cryptos.push(req.body.name)
+    res.send({"status": "success"})
+  }
+  res.send({"status": "error"})
 })
 
 
