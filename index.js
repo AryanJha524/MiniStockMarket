@@ -1,9 +1,12 @@
 const finnhub = require('finnhub')
 const express = require('express')
+const bodyParser = require('body-parser')
 const api = require("./config").API_KEY
 
 const app = express()
 const port = 3000
+const jsonParser = bodyParser.json()
+
 
 const api_key = finnhub.ApiClient.instance.authentications['api_key'];
 api_key.apiKey = api
@@ -26,7 +29,14 @@ const getCryptoInfo = () => {
 
     finnhubClient.cryptoCandles("BINANCE:" + currency + "USDT", "60", from, to, (error, data, response) => {
       if (error) {
-        console.log(error);
+        console.log(error)
+      }
+      if (data.s == 'no_data') {
+        noInfo = {
+          "cryptoName" : currency,
+          "error" : "No data found for this currency"
+        }
+        cryptoInfo.push(noInfo)
       }
       else {
         info = {
@@ -37,10 +47,6 @@ const getCryptoInfo = () => {
       }
     })
   });
-}
-
-const validateCrypto = (name) => {
-  return true;
 }
 
 
@@ -56,10 +62,9 @@ app.get('/', (req, res) => {
 })
 
 // endpoint to add crypto currency
-app.post('/addCrypto', (req, res) => {
-  if (validateCrypto(req.body.name)) {
-    cryptos.push(req.body.name)
-  }
+app.post('/addCrypto', jsonParser, (req, res) => {
+  cryptos.push(req.body.name)
+  res.send({"status": "success"})
 })
 
 
